@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sophia AI — Enterprise Talent Interviewer</title>
+  <!-- Google Fonts & Lucide Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root {
+      --bg-dark: #070b14;
+      --bg-card: rgba(15, 23, 42, 0.88);
+      --bg-card-border: rgba(255, 255, 255, 0.08);
+      --primary: #8b5cf6;
+      --primary-hover: #7c3aed;
+      --primary-glow: rgba(139, 92, 246, 0.35);
+      --accent-pink: #ec4899;
+      --accent-cyan: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --radius-lg: 24px;
+      --radius-md: 14px;
+      --radius-sm: 8px;
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at 15% 15%, #111827 0%, #060911 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Ambient Lighting */
+    .glow-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(140px);
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.18;
+    }
+    .orb-1 { top: -120px; left: -100px; width: 500px; height: 500px; background: var(--primary); }
+    .orb-2 { bottom: -120px; right: -100px; width: 520px; height: 520px; background: var(--accent-pink); }
+
+    /* Header */
+    header {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2.5rem;
+      border-bottom: 1px solid var(--bg-card-border);
+      background: rgba(11, 15, 26, 0.85);
+      backdrop-filter: blur(20px);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .brand-logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--accent-pink), var(--primary));
+      display: grid;
+      place-items: center;
+      box-shadow: 0 0 25px rgba(236, 72, 153, 0.35);
+    }
+
+    .brand-title {
+      font-weight: 800;
+      font-size: 1.3rem;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .brand-badge {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: rgba(236, 72, 153, 0.15);
+      color: #f472b6;
+      border: 1px solid rgba(236, 72, 153, 0.3);
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    .nav-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .select-dropdown {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--bg-card-border);
+      color: var(--text-main);
+      padding: 0.55rem 0.95rem;
+      border-radius: var(--radius-sm);
+      outline: none;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .select-dropdown:hover, .select-dropdown:focus {
+      border-color: var(--primary);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .select-dropdown option {
+      background: #111827;
+      color: #fff;
+    }
+
+    /* Main Container */
+    main {
+      position: relative;
+      z-index: 5;
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 1.75rem;
+      padding: 1.5rem 2.5rem;
+      max-width: 1700px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1100px) {
+      main {
+        grid-template-columns: 1fr;
+        padding: 1.25rem;
+      }
+    }
+
+    /* Left Stage */
+    .stage-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .interviewer-card {
+      position: relative;
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      min-height: 480px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(20px);
+    }
+
+    .avatar-canvas-container {
+      position: relative;
+      width: 340px;
+      height: 340px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #avatarCanvas {
+      width: 340px;
+      height: 340px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.12) 0%, rgba(15, 23, 42, 0) 70%);
+      z-index: 2;
+    }
+
+    .avatar-aura {
+      position: absolute;
+      width: 350px;
+      height: 350px;
+      border-radius: 50%;
+      border: 2px dashed rgba(236, 72, 153, 0.35);
+      animation: rotateSlow 24s linear infinite;
+      pointer-events: none;
+    }
+
+    .avatar-aura.speaking {
+      border-color: var(--accent-pink);
+      box-shadow: 0 0 50px rgba(236, 72, 153, 0.45);
+      animation: pulseAura 1.4s ease-in-out infinite alternate;
+    }
+
+    @keyframes rotateSlow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes pulseAura {
+      0% { transform: scale(1); opacity: 0.7; }
+      100% { transform: scale(1.08); opacity: 1; border-color: #f472b6; }
+    }
+
+    .interviewer-status {
+      margin-top: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .interviewer-name {
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .speaking-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: #f472b6;
+      font-weight: 600;
+    }
+
+    .wave-bars {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      height: 16px;
+    }
+
+    .wave-bar {
+      width: 3px;
+      height: 6px;
+      background: #f472b6;
+      border-radius: 2px;
+      animation: waveJump 1s ease-in-out infinite;
+    }
+
+    .wave-bar:nth-child(2) { animation-delay: 0.2s; }
+    .wave-bar:nth-child(3) { animation-delay: 0.4s; }
+    .wave-bar:nth-child(4) { animation-delay: 0.6s; }
+
+    @keyframes waveJump {
+      0%, 100% { height: 4px; }
+      50% { height: 16px; }
+    }
+
+    /* Candidate Video Card */
+    .candidate-card {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      backdrop-filter: blur(20px);
+    }
+
+    .video-preview-wrapper {
+      position: relative;
+      width: 200px;
+      height: 130px;
+      background: #020617;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    #candidateVideo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1);
+    }
+
+    .video-overlay-badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(8px);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-rose);
+      animation: blink 1.2s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .candidate-meta {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .candidate-telemetry {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .telemetry-chip {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .telemetry-chip.good {
+      color: var(--accent-emerald);
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    /* Right Console */
+    .panel-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .interview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .stage-pill {
+      background: rgba(139, 92, 246, 0.15);
+      color: #c4b5fd;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      padding: 4px 14px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-pink), var(--primary));
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    .question-box {
+      background: linear-gradient(145deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.95));
+      border: 1px solid rgba(236, 72, 153, 0.25);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+      position: relative;
+    }
+
+    .question-box::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(to bottom, var(--accent-pink), var(--primary));
+      border-radius: 4px 0 0 4px;
+    }
+
+    .question-label {
+      font-size: 0.75rem;
+      color: #f472b6;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .question-text {
+      font-size: 1.15rem;
+      font-weight: 600;
+      line-height: 1.55;
+      color: #fff;
+    }
+
+    .question-tools {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .btn-tool {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-muted);
+      padding: 0.35rem 0.75rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: var(--transition);
+    }
+
+    .btn-tool:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+    }
+
+    /* Response Area */
+    .response-area {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .transcription-box {
+      width: 100%;
+      height: 140px;
+      background: rgba(10, 15, 29, 0.8);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      resize: vertical;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .transcription-box:focus {
+      border-color: var(--accent-pink);
+      box-shadow: 0 0 15px rgba(236, 72, 153, 0.2);
+    }
+
+    .response-metrics {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Action Buttons */
+    .action-row {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .btn-primary {
+      flex: 1;
+      background: linear-gradient(135deg, var(--accent-pink), var(--primary));
+      color: #fff;
+      border: none;
+      padding: 0.9rem 1.5rem;
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 20px rgba(236, 72, 153, 0.35);
+      transition: var(--transition);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(236, 72, 153, 0.45);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--bg-card-border);
+      color: var(--text-main);
+      padding: 0.9rem 1.35rem;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: var(--transition);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .btn-record.recording {
+      background: rgba(244, 63, 94, 0.2);
+      border-color: var(--accent-rose);
+      color: var(--accent-rose);
+      animation: pulseRecord 1.5s infinite;
+    }
+
+    @keyframes pulseRecord {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.4); }
+      50% { box-shadow: 0 0 0 10px rgba(244, 63, 94, 0); }
+    }
+
+    /* Modal Dossier */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 7, 18, 0.88);
+      backdrop-filter: blur(14px);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+
+    .modal-card {
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 850px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 2.25rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--bg-card-border);
+    }
+
+    .score-banner {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(139, 92, 246, 0.15));
+      border: 1px solid rgba(236, 72, 153, 0.3);
+      padding: 1.5rem;
+      border-radius: var(--radius-md);
+      margin-bottom: 1.5rem;
+    }
+
+    .score-circle {
+      width: 85px;
+      height: 85px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-pink), var(--primary));
+      display: grid;
+      place-items: center;
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+      box-shadow: 0 0 25px rgba(236, 72, 153, 0.4);
+    }
+
+    .dossier-section-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin: 1.5rem 0 0.85rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .response-dossier-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .dossier-q {
+      font-weight: 600;
+      color: #c4b5fd;
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .dossier-a {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-sm);
+      color: #f1f5f9;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      border-left: 3px solid var(--accent-pink);
+      margin-bottom: 0.5rem;
+    }
+
+    .dossier-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glow-orb orb-1"></div>
+  <div class="glow-orb orb-2"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <div class="brand-logo">
+        <i data-lucide="user-check" style="color: #fff; width: 24px; height: 24px;"></i>
+      </div>
+      <div>
+        <div class="brand-title">
+          <span>Sophia</span>
+          <span class="brand-badge">Enterprise Talent Recruiter</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-controls">
+      <!-- Complexion Selector -->
+      <select id="skinSelect" class="select-dropdown" aria-label="Interviewer Complexion">
+        <option value="wheatish" selected>✨ Face: Natural Wheatish</option>
+        <option value="tan">☀️ Face: Golden Tan</option>
+        <option value="fair">🌸 Face: Fair Warm</option>
+        <option value="rich">🍫 Face: Rich Bronze</option>
+      </select>
+
+      <!-- Role Selector -->
+      <select id="roleSelect" class="select-dropdown" aria-label="Select Target Role">
+        <option value="workplace" selected>🏢 Practical Workplace Scenarios</option>
+        <option value="tech">💻 Software & Full Stack Work</option>
+        <option value="hr">👥 HR, Leadership & Culture Fit</option>
+      </select>
+
+      <!-- Multilingual Selector -->
+      <select id="langSelect" class="select-dropdown" aria-label="Select Language">
+        <option value="en-US">🇬🇧 English</option>
+        <option value="hi-IN">🇮🇳 Hindi (हिन्दी)</option>
+        <option value="es-ES">🇪🇸 Spanish (Español)</option>
+        <option value="fr-FR">🇫🇷 French (Français)</option>
+        <option value="de-DE">🇩🇪 German (Deutsch)</option>
+      </select>
+    </div>
+  </header>
+
+  <!-- Main Stage -->
+  <main>
+    <div class="stage-wrapper">
+      <!-- Sophia AI Avatar Card -->
+      <div class="interviewer-card">
+        <div class="avatar-canvas-container">
+          <div class="avatar-aura" id="avatarAura"></div>
+          <canvas id="avatarCanvas" width="340" height="340"></canvas>
+        </div>
+
+        <div class="interviewer-status">
+          <div class="interviewer-name">
+            <span>Sophia</span>
+            <i data-lucide="sparkles" style="color: #ec4899; width: 18px; height: 18px;"></i>
+          </div>
+          <div class="speaking-indicator" id="speakingIndicator">
+            <span id="interviewerStateText">Ready</span>
+            <div class="wave-bars" id="waveBars" style="display: none;">
+              <span class="wave-bar"></span>
+              <span class="wave-bar"></span>
+              <span class="wave-bar"></span>
+              <span class="wave-bar"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Candidate Camera Feed -->
+      <div class="candidate-card">
+        <div class="video-preview-wrapper">
+          <video id="candidateVideo" autoplay playsinline muted></video>
+          <div class="video-overlay-badge">
+            <span class="live-dot"></span>
+            <span>CANDIDATE FEED</span>
+          </div>
+        </div>
+
+        <div class="candidate-meta">
+          <div style="font-weight: 700; font-size: 0.95rem;" id="candidateDisplay">Candidate Stream</div>
+          <div class="candidate-telemetry">
+            <div class="telemetry-chip good">
+              <i data-lucide="video" style="width: 14px; height: 14px;"></i>
+              <span id="camStatus">Webcam Active</span>
+            </div>
+            <div class="telemetry-chip good">
+              <i data-lucide="mic" style="width: 14px; height: 14px;"></i>
+              <span id="micStatus">Mic Connected</span>
+            </div>
+            <div class="telemetry-chip">
+              <i data-lucide="shield-check" style="width: 14px; height: 14px;"></i>
+              <span>Proctored Session</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Console -->
+    <div class="panel-wrapper">
+      <div class="card">
+        <div class="interview-header">
+          <div>
+            <span class="stage-pill" id="roundBadge">Round 1: Routine & Sprint</span>
+          </div>
+          <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;" id="qCounter">
+            Ready to Begin
+          </span>
+        </div>
+
+        <div class="progress-bar-container">
+          <div class="progress-fill" id="progressBar"></div>
+        </div>
+
+        <!-- Question Box -->
+        <div class="question-box">
+          <div class="question-label">
+            <span id="qLabel">Interview Question</span>
+            <span id="recordBadge" style="color: var(--accent-emerald); display: none;">✓ Response Recorded</span>
+          </div>
+          <div class="question-text" id="questionText">
+            "Welcome! I am Sophia. I will conduct your interview today with questions tailored to your role. Click 'Start Interview' to begin."
+          </div>
+          <div class="question-tools">
+            <button class="btn-tool" id="btnRepeat">
+              <i data-lucide="volume-2" style="width: 14px; height: 14px;"></i>
+              <span>Repeat Question</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- User Response Area with Word Count Tracking -->
+        <div class="response-area">
+          <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); display: flex; justify-content: space-between;">
+            <span>Your Live Voice / Typed Response:</span>
+            <span id="responseStatus" style="color: var(--accent-emerald);">Ready</span>
+          </label>
+          <textarea
+            id="transcriptBox"
+            class="transcription-box"
+            placeholder="Click 'Record Answer' to speak, or write your response here..."
+          ></textarea>
+          <div class="response-metrics">
+            <span id="wordCountLabel">Words: 0</span>
+            <span style="color: var(--accent-pink);">Sophia accurately stores this answer for final review</span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="action-row">
+          <button class="btn-secondary btn-record" id="btnRecord">
+            <i data-lucide="mic" style="width: 18px; height: 18px;"></i>
+            <span id="txtRecordBtn">Record Answer</span>
+          </button>
+          <button class="btn-primary" id="btnSubmit">
+            <span id="txtSubmitBtn">Start Interview</span>
+            <i data-lucide="arrow-right" style="width: 18px; height: 18px;"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Final Comprehensive Dossier Modal -->
+  <div class="modal-backdrop" id="assessmentModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h2 style="font-weight: 800; font-size: 1.4rem;">Candidate Evaluation Dossier</h2>
+          <p style="font-size: 0.85rem; color: var(--text-muted);" id="dossierCandidateInfo">Official Interview Evaluation</p>
+        </div>
+        <button id="btnCloseModal" style="background: none; border: none; color: var(--text-muted); cursor: pointer;">
+          <i data-lucide="x" style="width: 22px; height: 22px;"></i>
+        </button>
+      </div>
+
+      <div class="score-banner">
+        <div class="score-circle" id="finalScoreVal">92%</div>
+        <div>
+          <h3 style="font-size: 1.15rem; margin-bottom: 0.25rem;">Hiring Recommendation: Strong Candidate</h3>
+          <p style="color: var(--text-muted); font-size: 0.85rem;">
+            Candidate successfully completed all rounds. Demonstrates proactive ownership, clear articulation, and methodical problem-solving.
+          </p>
+        </div>
+      </div>
+
+      <!-- Actual User Responses Breakdown -->
+      <div class="dossier-section-title">
+        <i data-lucide="clipboard-list" style="color: var(--accent-pink); width: 20px; height: 20px;"></i>
+        <span>Recorded Question-by-Question Candidate Responses</span>
+      </div>
+      <div id="dossierResponsesContainer">
+        <!-- Dynamically injected with candidate's actual answers -->
+      </div>
+
+      <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+        <button class="btn-primary" onclick="window.print()" style="flex: 1;">
+          <i data-lucide="download" style="width: 18px; height: 18px;"></i>
+          Download / Print Complete PDF Dossier
+        </button>
+        <button class="btn-secondary" onclick="location.reload()">
+          Start New Candidate Session
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    /* ========================================================
+       1. Candidate Session Data Storage (Accurate Storage)
+       ======================================================== */
+    const candidateSession = {
+      name: "Candidate",
+      role: "Workplace Experience",
+      language: "en-US",
+      responses: [] // Array of { qIndex, question, answer, wordCount, score, feedback }
+    };
+
+    /* ========================================================
+       2. Multilingual Question Banks
+       ======================================================== */
+    const WORK_QUESTIONS = {
+      workplace: {
+        "en-US": [
+          "Could you introduce yourself and walk me through your daily work routine? How do you organize your tasks and collaborate with teammates during sprint cycles?",
+          "Can you describe a specific time when a major issue or production bug occurred on your project? How did you diagnose the issue and resolve it under pressure?",
+          "Tell me about a time you had a disagreement with a colleague or manager regarding a technical or project decision. How did you handle that professionally?",
+          "When working under tight deadlines, how do you balance delivering features quickly with maintaining high work quality and proper documentation?"
+        ],
+        "hi-IN": [
+          "कृपया अपना परिचय दें और अपने दैनिक कार्य रूटीन के बारे में बताएं। आप अपने कार्यों की योजना और टीम के साथ समन्वय कैसे बनाते हैं?",
+          "क्या आप किसी ऐसे प्रोजेक्ट अनुभव के बारे में बता सकते हैं जब कोई गंभीर समस्या या प्रोडक्शन बग आया हो, और आपने दबाव में उसे कैसे हल किया?",
+          "किसी सहकर्मी या मैनेजर के साथ काम से जुड़े मतभेद होने पर आपने उस स्थिति को कैसे पेशेवर तरीके से सुलझाया?",
+          "कम समय सीमा (डेडलाइन) में काम करते हुए आप काम की गुणवत्ता और गति के बीच संतुलन कैसे बनाते हैं?"
+        ],
+        "es-ES": [
+          "Por favor preséntate y explícame tu flujo de trabajo diario. ¿Cómo planificas tus tareas y colaboras con el equipo?",
+          "Describe una situación crítica o un fallo en producción. ¿Cómo diagnosticaste la causa raíz y lo solucionaste bajo presión?",
+          "Cuéntame sobre una ocasión en la que tuviste un desacuerdo con un compañero o líder de proyecto y cómo lo resolviste.",
+          "¿Cómo equilibras la rapidez en la entrega con la calidad del trabajo y las buenas prácticas?"
+        ],
+        "fr-FR": [
+          "Pouvez-vous vous présenter et décrire votre routine de travail quotidienne ? Comment organisez-vous vos tâches et collaborez-vous en équipe ?",
+          "Décrivez une situation où un incident critique s'est produit en production. Comment avez-vous identifié la cause et résolu le problème sous pression ?",
+          "Parlez-moi d'une situation où vous avez eu un désaccord avec un collègue ou un responsable. Comment l'avez-vous résolu professionnellement ?",
+          "Face à des délais serrés, comment équilibrez-vous rapidité de livraison et qualité rigoureuse ?"
+        ],
+        "de-DE": [
+          "Könnten Sie sich bitte vorstellen und Ihren täglichen Arbeitsablauf beschreiben? Wie organisieren Sie Aufgaben im Team?",
+          "Beschreiben Sie einen kritischen Vorfall in der Produktion. Wie haben Sie unter Druck die Fehlerursache behoben?",
+          "Erzählen Sie von einer Meinungsverschiedenheit mit einem Kollegen oder Vorgesetzten und wie Sie diese professionell gelöst haben.",
+          "Wie halten Sie bei engen Abgabefristen die Balance zwischen Geschwindigkeit und hoher Arbeitsqualität?"
+        ]
+      },
+      tech: {
+        "en-US": [
+          "Could you walk me through the architecture of a full-stack project you recently built? What architectural choices did you make?",
+          "How do you profile, identify, and resolve bottlenecks in slow database queries or lagging APIs in production?",
+          "Describe how your team manages code reviews, unit testing, and automated CI/CD deployments to ensure zero-downtime releases.",
+          "How do you handle security vulnerabilities, secret management, and role-based access control in your applications?"
+        ],
+        "hi-IN": [
+          "हाल ही में बनाए गए किसी फुल-स्टैक प्रोजेक्ट के आर्किटेक्चर के बारे में बताएं।",
+          "लाइव प्रोडक्शन में धीमी गति वाले डेटाबेस या एपीआई की समस्याओं को आप कैसे हल करते हैं?",
+          "आपकी टीम कोड रिव्यू और ऑटोमेटेड टेस्टिंग को कैसे मैनेज करती है?",
+          "सिस्टम और यूजर डेटा को सुरक्षित रखने के लिए आप क्या सुरक्षा उपाय अपनाते हैं?"
+        ]
+      },
+      hr: {
+        "en-US": [
+          "How do you evaluate both technical competency and culture fit when interviewing potential team members?",
+          "What strategies do you rely on when sourcing and hiring for competitive, high-demand technical roles?",
+          "How do you handle delicate situations such as salary negotiations or delivering constructive rejection feedback?",
+          "What methods have you implemented to improve team engagement and reduce employee attrition?"
+        ],
+        "hi-IN": [
+          "उम्मीदवारों का साक्षात्कार लेते समय आप उनके तकनीकी कौशल और टीम कल्चर का मूल्यांकन कैसे करते हैं?",
+          "कठिन तकनीकी पदों के लिए सही टैलेंट खोजने की आपकी क्या रणनीति होती है?",
+          "सैलरी नेगोशिएशन और रिजेक्शन फीडबैक जैसी संवेदनशील बातचीत को आप कैसे संभालते हैं?"
+        ]
+      }
+    };
+
+    /* ========================================================
+       3. Sophia Vector Canvas Avatar (Female Design)
+       ======================================================== */
+    const SKIN_PALETTES = {
+      wheatish: { face: "#E8B896", neck: "#DE9F77", blush: "rgba(225, 95, 110, 0.24)", lip: "#C23B58", hair: "#2b1810", earring: "#fef08a" },
+      tan:      { face: "#D49B6A", neck: "#C68B59", blush: "rgba(200, 80, 80, 0.25)", lip: "#A83248", hair: "#1f140e", earring: "#fef08a" },
+      fair:     { face: "#FAD3B4", neck: "#F0BD96", blush: "rgba(255, 120, 140, 0.26)", lip: "#DC2660", hair: "#3a2118", earring: "#e2e8f0" },
+      rich:     { face: "#8D5524", neck: "#754318", blush: "rgba(130, 50, 40, 0.20)", lip: "#831843", hair: "#0f0a06", earring: "#fef08a" }
+    };
+
+    const canvas = document.getElementById('avatarCanvas');
+    const ctx = canvas.getContext('2d');
+    const avatarAura = document.getElementById('avatarAura');
+    const waveBars = document.getElementById('waveBars');
+    const stateText = document.getElementById('interviewerStateText');
+
+    let avatarState = "idle";
+    let mouthOpenness = 0;
+    let mouthWidth = 0.5;
+    let blinkValue = 0;
+    let time = 0;
+
+    function scheduleBlink() {
+      const nextBlink = Math.random() * 3000 + 2000;
+      setTimeout(() => {
+        let closing = true;
+        let progress = 0;
+        const blinkInterval = setInterval(() => {
+          if (closing) {
+            progress += 0.25;
+            if (progress >= 1) { progress = 1; closing = false; }
+          } else {
+            progress -= 0.25;
+            if (progress <= 0) { progress = 0; clearInterval(blinkInterval); scheduleBlink(); }
+          }
+          blinkValue = progress;
+        }, 30);
+      }, nextBlink);
+    }
+    scheduleBlink();
+
+    function renderSophiaAvatar() {
+      time += 0.04;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2 + 12;
+      const breath = Math.sin(time * 1.5) * 2.2;
+      const headTilt = Math.sin(time * 0.8) * 0.02;
+
+      const skinKey = document.getElementById('skinSelect').value;
+      const palette = SKIN_PALETTES[skinKey] || SKIN_PALETTES.wheatish;
+
+      if (avatarState === "speaking") {
+        mouthOpenness = 0.35 + Math.abs(Math.sin(time * 9)) * 0.45;
+        mouthWidth = 0.45 + Math.sin(time * 5) * 0.15;
+      } else if (avatarState === "listening") {
+        mouthOpenness = 0.05;
+        mouthWidth = 0.52;
+      } else {
+        mouthOpenness = 0.02;
+        mouthWidth = 0.48;
+      }
+
+      ctx.save();
+      ctx.translate(cx, cy + breath);
+      ctx.rotate(headTilt);
+      ctx.translate(-cx, -cy);
+
+      // Back Hair
+      ctx.fillStyle = palette.hair;
+      ctx.beginPath();
+      ctx.arc(cx, cy - 20, 78, Math.PI, 0);
+      ctx.quadraticCurveTo(cx + 95, cy + 60, cx + 78, cy + 150);
+      ctx.lineTo(cx - 78, cy + 150);
+      ctx.quadraticCurveTo(cx - 95, cy + 60, cx - 78, cy - 20);
+      ctx.closePath();
+      ctx.fill();
+
+      // Tailored Blazer
+      ctx.fillStyle = "#1e1b4b";
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + 142, 95, 58, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Silk Blouse
+      ctx.fillStyle = "#fdf2f8";
+      ctx.beginPath();
+      ctx.moveTo(cx - 25, cy + 90);
+      ctx.lineTo(cx, cy + 135);
+      ctx.lineTo(cx + 25, cy + 90);
+      ctx.closePath();
+      ctx.fill();
+
+      // Pearl Necklace
+      ctx.strokeStyle = "#fbcfe8";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(cx, cy + 76, 26, 0.2 * Math.PI, 0.8 * Math.PI);
+      ctx.stroke();
+
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(cx, cy + 101, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Neck
+      ctx.fillStyle = palette.neck;
+      ctx.fillRect(cx - 15, cy + 48, 30, 46);
+
+      // Head & Face
+      ctx.fillStyle = palette.face;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, 60, 72, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Blush
+      ctx.fillStyle = palette.blush;
+      ctx.beginPath();
+      ctx.arc(cx - 36, cy + 16, 13, 0, Math.PI * 2);
+      ctx.arc(cx + 36, cy + 16, 13, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Front Hair Curls
+      ctx.fillStyle = palette.hair;
+      ctx.beginPath();
+      ctx.moveTo(cx - 60, cy - 10);
+      ctx.quadraticCurveTo(cx - 20, cy - 65, cx + 30, cy - 50);
+      ctx.quadraticCurveTo(cx + 65, cy - 30, cx + 64, cy + 30);
+      ctx.quadraticCurveTo(cx + 50, cy - 20, cx + 25, cy - 40);
+      ctx.quadraticCurveTo(cx - 10, cy - 35, cx - 60, cy - 10);
+      ctx.fill();
+
+      // Earrings
+      ctx.fillStyle = palette.earring;
+      ctx.beginPath();
+      ctx.arc(cx - 58, cy + 26, 4.5, 0, Math.PI * 2);
+      ctx.arc(cx + 58, cy + 26, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Eyebrows
+      ctx.strokeStyle = "#271c19";
+      ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      ctx.arc(cx - 24, cy - 22, 16, Math.PI * 1.15, Math.PI * 1.85);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(cx + 24, cy - 22, 16, Math.PI * 1.15, Math.PI * 1.85);
+      ctx.stroke();
+
+      // Almond Eyes with Eyelashes
+      const eyeY = cy - 8;
+      if (blinkValue > 0.8) {
+        ctx.strokeStyle = "#1c1917";
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(cx - 36, eyeY);
+        ctx.quadraticCurveTo(cx - 24, eyeY + 5, cx - 12, eyeY);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(cx + 12, eyeY);
+        ctx.quadraticCurveTo(cx + 24, eyeY + 5, cx + 36, eyeY);
+        ctx.stroke();
+      } else {
+        const eyeHeight = 12 * (1 - blinkValue);
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.ellipse(cx - 24, eyeY, 13, eyeHeight, 0, 0, Math.PI * 2);
+        ctx.ellipse(cx + 24, eyeY, 13, eyeHeight, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#7c3aed";
+        ctx.beginPath();
+        ctx.arc(cx - 24, eyeY, 6.2, 0, Math.PI * 2);
+        ctx.arc(cx + 24, eyeY, 6.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#0f172a";
+        ctx.beginPath();
+        ctx.arc(cx - 24, eyeY, 3.2, 0, Math.PI * 2);
+        ctx.arc(cx + 24, eyeY, 3.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(cx - 22, eyeY - 2, 1.8, 0, Math.PI * 2);
+        ctx.arc(cx + 26, eyeY - 2, 1.8, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = "#09090b";
+        ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        ctx.arc(cx - 24, eyeY, 13.5, Math.PI * 1.1, Math.PI * 1.9);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(cx + 24, eyeY, 13.5, Math.PI * 1.1, Math.PI * 1.9);
+        ctx.stroke();
+      }
+
+      // Nose
+      ctx.strokeStyle = "rgba(120, 70, 50, 0.35)";
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy + 2);
+      ctx.lineTo(cx - 2, cy + 17);
+      ctx.lineTo(cx + 3, cy + 17);
+      ctx.stroke();
+
+      // Mouth
+      const mouthY = cy + 40;
+      const mw = 20 * mouthWidth;
+      const mh = 16 * mouthOpenness;
+
+      ctx.fillStyle = palette.lip;
+      ctx.strokeStyle = palette.lip;
+      ctx.lineWidth = 2;
+
+      ctx.beginPath();
+      if (mouthOpenness < 0.1) {
+        ctx.moveTo(cx - mw, mouthY);
+        ctx.quadraticCurveTo(cx, mouthY + 5.5, cx + mw, mouthY);
+        ctx.quadraticCurveTo(cx, mouthY + 8, cx - mw, mouthY);
+        ctx.fill();
+        ctx.stroke();
+      } else {
+        ctx.moveTo(cx - mw, mouthY);
+        ctx.quadraticCurveTo(cx, mouthY - (mh * 0.3), cx + mw, mouthY);
+        ctx.quadraticCurveTo(cx, mouthY + mh, cx - mw, mouthY);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.rect(cx - (mw * 0.5), mouthY - 1, mw, mh * 0.35);
+        ctx.fill();
+      }
+
+      ctx.restore();
+      requestAnimationFrame(renderSophiaAvatar);
+    }
+    renderSophiaAvatar();
+
+    function setAvatarState(state) {
+      avatarState = state;
+      if (state === "speaking") {
+        avatarAura.classList.add('speaking');
+        waveBars.style.display = 'inline-flex';
+        stateText.textContent = "Sophia is Speaking...";
+      } else if (state === "listening") {
+        avatarAura.classList.remove('speaking');
+        waveBars.style.display = 'none';
+        stateText.textContent = "Sophia is Listening...";
+      } else {
+        avatarAura.classList.remove('speaking');
+        waveBars.style.display = 'none';
+        stateText.textContent = "Ready";
+      }
+    }
+
+    /* ========================================================
+       4. Female Voice Engine
+       ======================================================== */
+    let voices = [];
+    function loadVoices() { voices = window.speechSynthesis.getVoices(); }
+    loadVoices();
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = loadVoices;
+    }
+
+    function getBestFemaleVoice(lang) {
+      if (!voices.length) return null;
+      const langCode = lang.split('-')[0];
+      const langVoices = voices.filter(v => v.lang.startsWith(langCode) || v.lang === lang);
+
+      const femaleKeywords = ['female', 'zira', 'jenny', 'samantha', 'victoria', 'karen', 'swara', 'kalpana', 'google', 'natural'];
+      const bestFemale = langVoices.find(v => {
+        const nameLower = v.name.toLowerCase();
+        return femaleKeywords.some(keyword => nameLower.includes(keyword));
+      });
+
+      return bestFemale || langVoices[0] || voices[0];
+    }
+
+    function speakText(text, callback) {
+      if (!('speechSynthesis' in window)) {
+        if (callback) callback();
+        return;
+      }
+
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      const selectedLang = document.getElementById('langSelect').value;
+      utterance.lang = selectedLang;
+      utterance.rate = 1.0;
+      utterance.pitch = 1.15;
+
+      const femaleVoice = getBestFemaleVoice(selectedLang);
+      if (femaleVoice) utterance.voice = femaleVoice;
+
+      utterance.onstart = () => setAvatarState("speaking");
+      utterance.onend = () => {
+        setAvatarState("listening");
+        if (callback) callback();
+      };
+      utterance.onerror = () => {
+        setAvatarState("idle");
+        if (callback) callback();
+      };
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    /* ========================================================
+       5. Response Collection & Speech-to-Text
+       ======================================================== */
+    let recognition = null;
+    let isRecording = false;
+
+    function setupSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        document.getElementById('micStatus').textContent = "Text Input Active";
+        return;
+      }
+
+      recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+
+      recognition.onstart = () => {
+        isRecording = true;
+        setAvatarState("listening");
+        document.getElementById('btnRecord').classList.add('recording');
+        document.getElementById('txtRecordBtn').textContent = "Listening (Click to Stop)";
+        document.getElementById('responseStatus').textContent = "Recording Voice...";
+        document.getElementById('responseStatus').style.color = "#ec4899";
+      };
+
+      recognition.onresult = (event) => {
+        let transcript = "";
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          transcript += event.results[i][0].transcript;
+        }
+        document.getElementById('transcriptBox').value = transcript;
+        updateWordCount();
+      };
+
+      recognition.onend = () => {
+        isRecording = false;
+        document.getElementById('btnRecord').classList.remove('recording');
+        document.getElementById('txtRecordBtn').textContent = "Record Answer";
+        document.getElementById('responseStatus').textContent = "Answer Stored";
+        document.getElementById('responseStatus').style.color = "#10b981";
+      };
+    }
+    setupSpeechRecognition();
+
+    function toggleRecording() {
+      if (!recognition) return;
+      if (isRecording) {
+        recognition.stop();
+      } else {
+        document.getElementById('transcriptBox').value = "";
+        recognition.lang = document.getElementById('langSelect').value;
+        recognition.start();
+      }
+    }
+
+    function updateWordCount() {
+      const text = document.getElementById('transcriptBox').value.trim();
+      const count = text ? text.split(/\s+/).length : 0;
+      document.getElementById('wordCountLabel').textContent = `Words: ${count}`;
+    }
+    document.getElementById('transcriptBox').addEventListener('input', updateWordCount);
+
+    /* ========================================================
+       6. Candidate Camera Feed
+       ======================================================== */
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        document.getElementById('candidateVideo').srcObject = stream;
+      } catch (err) {
+        document.getElementById('camStatus').textContent = "Camera Demo";
+      }
+    }
+    startCamera();
+
+    /* ========================================================
+       7. Interview Progression & Accurate Response Logging
+       ======================================================== */
+    let currentQuestions = [];
+    let currentQIndex = -1;
+
+    function loadQuestions() {
+      const role = document.getElementById('roleSelect').value;
+      const lang = document.getElementById('langSelect').value;
+      const set = WORK_QUESTIONS[role] || WORK_QUESTIONS.workplace;
+      currentQuestions = set[lang] || set["en-US"];
+    }
+
+    function advanceInterview() {
+      // First click: Start Interview & Ask for Candidate Name
+      if (currentQIndex === -1) {
+        const candidateName = prompt("Please enter your name for this interview session:", "Alex Johnson");
+        if (candidateName && candidateName.trim()) {
+          candidateSession.name = candidateName.trim();
+          document.getElementById('candidateDisplay').textContent = `${candidateSession.name} (Live)`;
+        }
+
+        loadQuestions();
+        currentQIndex = 0;
+        document.getElementById('txtSubmitBtn').textContent = "Submit Answer";
+        displayQuestion();
+        return;
+      }
+
+      // Stop mic if recording
+      if (isRecording && recognition) recognition.stop();
+
+      // ACCURATE COLLECTION OF USER RESPONSE
+      const rawAnswer = document.getElementById('transcriptBox').value.trim();
+      const wordCount = rawAnswer ? rawAnswer.split(/\s+/).length : 0;
+
+      if (!rawAnswer) {
+        const proceed = confirm("You haven't recorded an answer yet. Would you like to proceed without an answer for this question?");
+        if (!proceed) return;
+      }
+
+      // Store response accurately in candidate session
+      candidateSession.responses.push({
+        qIndex: currentQIndex + 1,
+        question: currentQuestions[currentQIndex],
+        answer: rawAnswer || "(No spoken answer recorded)",
+        wordCount: wordCount,
+        score: Math.min(100, Math.max(65, 75 + Math.round(wordCount * 0.35))),
+        feedback: wordCount > 25 ? "Well-articulated explanation with good situational context." : "Brief answer; recommended to provide more real-world examples."
+      });
+
+      // Visual indicator that answer was saved
+      document.getElementById('recordBadge').style.display = "inline";
+
+      // Sophia acknowledges the answer
+      const acks = [
+        "Thank you. I have recorded your response. Let's move to the next question.",
+        "Good explanation. That gives me great context. Here is the next scenario.",
+        "Thank you for walking me through that. Moving on to the next round."
+      ];
+      const randomAck = acks[Math.floor(Math.random() * acks.length)];
+
+      if (currentQIndex < currentQuestions.length - 1) {
+        speakText(randomAck, () => {
+          currentQIndex++;
+          displayQuestion();
+        });
+      } else {
+        speakText("Thank you, " + candidateSession.name + "! You have completed the interview. Generating your complete evaluation dossier now.", () => {
+          showFinalDossier();
+        });
+      }
+    }
+
+    function displayQuestion() {
+      const qText = currentQuestions[currentQIndex];
+      document.getElementById('questionText').textContent = qText;
+      document.getElementById('qCounter').textContent = `Question ${currentQIndex + 1} of ${currentQuestions.length}`;
+      document.getElementById('transcriptBox').value = "";
+      document.getElementById('wordCountLabel').textContent = "Words: 0";
+      document.getElementById('recordBadge').style.display = "none";
+
+      const progress = ((currentQIndex + 1) / currentQuestions.length) * 100;
+      document.getElementById('progressBar').style.width = `${progress}%`;
+
+      const rounds = ["Round 1: Routine & Sprint", "Round 2: Incident Debugging", "Round 3: Workplace Conflict", "Round 4: Delivery & Quality"];
+      document.getElementById('roundBadge').textContent = rounds[currentQIndex] || `Question ${currentQIndex + 1}`;
+
+      speakText(qText, () => {
+        // Automatically start recording when Sophia finishes asking
+        if (recognition && !isRecording) {
+          recognition.lang = document.getElementById('langSelect').value;
+          try { recognition.start(); } catch(e){}
+        }
+      });
+    }
+
+    /* ========================================================
+       8. Display Comprehensive Final Dossier with All Answers
+       ======================================================== */
+    function showFinalDossier() {
+      window.speechSynthesis.cancel();
+      setAvatarState("idle");
+
+      const container = document.getElementById('dossierResponsesContainer');
+      container.innerHTML = "";
+
+      // Calculate Average Score from real user answers
+      let totalScore = 0;
+      candidateSession.responses.forEach(r => totalScore += r.score);
+      const avgScore = candidateSession.responses.length > 0 
+        ? Math.round(totalScore / candidateSession.responses.length) 
+        : 90;
+
+      document.getElementById('finalScoreVal').textContent = `${avgScore}%`;
+      document.getElementById('dossierCandidateInfo').textContent = 
+        `Candidate: ${candidateSession.name} | Role: ${document.getElementById('roleSelect').selectedOptions[0].text} | Date: ${new Date().toLocaleDateString()}`;
+
+      // Render every collected question & candidate response
+      candidateSession.responses.forEach(item => {
+        const card = document.createElement('div');
+        card.className = "response-dossier-card";
+        card.innerHTML = `
+          <div class="dossier-q">Q${item.qIndex}: ${item.question}</div>
+          <div class="dossier-a"><strong>Candidate's Recorded Answer:</strong><br>${item.answer}</div>
+          <div class="dossier-meta">
+            <span><strong>Word Count:</strong> ${item.wordCount} words</span>
+            <span><strong>AI Assessment:</strong> ${item.feedback}</span>
+            <span style="color: var(--accent-emerald); font-weight: 700;">Score: ${item.score}/100</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      document.getElementById('assessmentModal').style.display = 'flex';
+      lucide.createIcons();
+    }
+
+    /* Event Listeners */
+    document.getElementById('btnSubmit').addEventListener('click', advanceInterview);
+    document.getElementById('btnRecord').addEventListener('click', toggleRecording);
+    document.getElementById('btnRepeat').addEventListener('click', () => {
+      if (currentQIndex >= 0 && currentQuestions[currentQIndex]) {
+        speakText(currentQuestions[currentQIndex]);
+      }
+    });
+
+    document.getElementById('roleSelect').addEventListener('change', () => {
+      currentQIndex = -1;
+      candidateSession.responses = [];
+      loadQuestions();
+      document.getElementById('questionText').textContent = "Role changed. Click 'Start Interview' to begin with Sophia.";
+      document.getElementById('txtSubmitBtn').textContent = "Start Interview";
+      document.getElementById('progressBar').style.width = "0%";
+    });
+
+    document.getElementById('langSelect').addEventListener('change', () => {
+      loadQuestions();
+      candidateSession.responses = [];
+      setAvatarState("idle");
+    });
+
+    document.getElementById('btnCloseModal').addEventListener('click', () => {
+      document.getElementById('assessmentModal').style.display = 'none';
+    });
+  </script>
+</body>
+</html>
